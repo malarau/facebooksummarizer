@@ -1,0 +1,24 @@
+# Git files
+.git
+.gitignore
+
+# Docker files
+Dockerfile
+docker-compose.yml
+
+# Python virtual environment and cache
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Environment and sensitive files
+.env
+*.db
+*.pkl
+
+# Project documentation and configuration
+README.md
+.idea/
+*.iml
+tests/

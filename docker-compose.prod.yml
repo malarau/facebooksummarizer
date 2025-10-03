@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # The Python application service
+  app:
+    # It does not use the Dockerfile now
+    image: s2kjn93h/facebooksummarizer:latest
+    # Set the container name for easier identification
+    container_name: facebooksummarizer_prod
+    # Load environment variables from the .env file
+    environment:
+      # Non-sensitive configuration
+      - DOCKER_ENV=true
+      - HEADLESS_MODE=false # User preference: Keep browser visible for monitoring
+      - SELENIUM_URL=http://selenium:4444/wd/hub      
+      # Secrets and Configuration to be injected from CI/CD Variables/Secrets
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL}    # Injected config (non-secret)
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY} # Injected secret      
+      - FACEBOOK_PAGES=${FACEBOOK_PAGES}    # Injected config (non-secret)
+      - FB_EMAIL=${FB_EMAIL}                # Injected secret
+      - FB_PASSWORD=${FB_PASSWORD}          # Injected secret            
+    # Mount the project directory to the container for live code updates
+    volumes:
+      - /opt/appdata/facebooksummarizer/database:/app/database
+    # Ensure the 'selenium' service starts before the 'app' service
+    depends_on:
+      - selenium
+
+  # The Selenium standalone Chrome browser service
+  selenium:
+    # Use the official Selenium image with debugging tools
+    image: selenium/standalone-chrome:latest
+    container_name: selenium_chrome
+    # Set the shared memory size to prevent browser crashes
+    shm_size: '2g'
+    # Map ports from the container to the host machine
+    ports:
+      - "4444:4444"  # Selenium WebDriver & Grid UI
+      - "7900:7900"  # noVNC for web browser viewing
+    restart: unless-stopped

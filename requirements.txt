@@ -1,0 +1,5 @@
+selenium
+dotenv
+goose3
+retrying
+schedule
