@@ -60,21 +60,26 @@ jobs:
           DEPLOY_DIR="/home/${{ secrets.EC2_USER }}/facebooksummarizer"
           VOLUME_DIR="/opt/appdata/facebooksummarizer/database"
 
-          # 1. Ensure the persistent volume directory exists
-          echo "Ensuring persistent data directory exists at $VOLUME_DIR..."
-          # This command requires sudo as it modifies a directory outside the user's home path
+          # 1. Ensure the persistent volume directory exists and is owned by the EC2 user
+          echo "Ensuring persistent data directory exists at $VOLUME_DIR and setting ownership..."
+          # Create directory (requires sudo)
           sudo mkdir -p $VOLUME_DIR
+          # Set ownership to the EC2_USER (essential for Docker volume permissions)
+          sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} $VOLUME_DIR
           
           # 2. Clone or update the configuration files (docker-compose.prod.yml)
           if [ ! -d "$DEPLOY_DIR" ]; then
             echo "Cloning repository to: $DEPLOY_DIR"
+            # Since the repo is public, standard HTTPS clone works
             git clone https://github.com/${{ github.repository }}.git $DEPLOY_DIR
           fi
           
           cd $DEPLOY_DIR
-          echo "Pulling latest configuration files..."
-          # Only pull the config files (docker-compose.prod.yml) as the app image is pre-built
-          git pull
+          echo "Synchronizing latest configuration files..."
+          # Fetch the latest history
+          git fetch
+          # Reset local branch forcefully to match remote, ensuring no merge conflicts occur.
+          git reset --hard origin/main
           
           # 3. Stop existing services
           echo "Stopping previous Docker containers..."
