@@ -16,6 +16,7 @@ __pycache__/
 .env
 *.db
 *.pkl
+*.pem
 
 # Project documentation and configuration
 README.md
