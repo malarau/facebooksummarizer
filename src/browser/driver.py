@@ -58,19 +58,26 @@ class BrowserDriver:
         options = Options()
         
         # Essential options
-        options.add_argument("--disable-notifications")
+        # Use a consistent screen size
+        options.add_argument("--window-size=1080,720")
+
+        # Disable extensions and infobars
+        options.add_argument("--disable-extensions")
+        options.add_argument("--disable-popup-blocking")
+        options.add_argument("--disable-infobars")  # Might not work on all Chrome versions
+
+        # Required for Docker (even in non-headless mode)
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-gpu")
-        
+                
         # Performance optimizations
-        options.add_argument("--disable-images")  # Disable image loading for speed
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option("useAutomationExtension", False)
         
         # Disable password manager and autofill
         prefs = {
-            "credentials_enable_service": False,
+            "profile.managed_default_content_settings.images": 2,  # Disable image loading for speed
+            "credentials_enable_service": False,  # Disable Chrome's login popups
             "profile.password_manager_enabled": False,
             "autofill.profile_enabled": False
         }
@@ -78,8 +85,11 @@ class BrowserDriver:
         
         # Headless mode if specified
         if self.headless:
+            print("Running in headless mode; browser GUI will NOT be visible.")
             options.add_argument("--headless=new")  # Use new headless mode
-            options.add_argument("--window-size=1920,1080")
+            options.add_argument("--disable-gpu")
+        else:
+            print("Running in non-headless mode; browser GUI will be visible.")
         
         # Create driver based on environment
         driver = None

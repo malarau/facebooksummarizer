@@ -21,7 +21,7 @@ services:
       - FB_PASSWORD=${FB_PASSWORD}          # Injected secret            
     # Mount the project directory to the container for live code updates
     volumes:
-      - /opt/appdata/facebooksummarizer/database:/app/database
+      - /opt/appdata/facebooksummarizer/database:/app/db
     # Ensure the 'selenium' service starts before the 'app' service
     depends_on:
       - selenium
