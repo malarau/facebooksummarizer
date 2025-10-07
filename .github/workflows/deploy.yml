@@ -1,0 +1,106 @@
+name: Continuous Deployment
+
+# Run this workflow whenever code is pushed to the 'main' branch
+on:
+  push:
+    branches: [ main ]
+
+env:
+  # Define a consistent image tag to use for building and running
+  IMAGE_TAG: ${{ secrets.DOCKERHUB_USERNAME }}/facebooksummarizer:latest
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # --- Phase 1: Build on Runner and Push to Docker Hub ---
+
+    # This step sets up the required build environment to use cache=gha
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        # Use Dockerfile in the root
+        file: ./Dockerfile
+        push: true
+        tags: ${{ env.IMAGE_TAG }}
+        cache-from: type=gha # Use GitHub Actions caching for faster subsequent builds
+        cache-to: type=gha,mode=max
+
+    # --- Phase 2: Deploy via SSH to EC2 ---
+    - name: Deploy via SSH to EC2 and Run Docker Compose
+      uses: appleboy/ssh-action@v1.0.1
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          set -e
+          
+          # --- 0. OS Maintenance (Safe Update and Cleanup) ---
+          echo "Running OS package list update and cleanup..."
+          sudo apt update -y 
+          sudo apt autoremove -y
+          
+          # Define directories
+          DEPLOY_DIR="/home/${{ secrets.EC2_USER }}/facebooksummarizer"
+          VOLUME_DIR="/opt/appdata/facebooksummarizer/database"
+
+          # 1. Ensure the persistent volume directory exists
+          echo "Ensuring persistent data directory exists at $VOLUME_DIR..."
+          # This command requires sudo as it modifies a directory outside the user's home path
+          sudo mkdir -p $VOLUME_DIR
+          
+          # 2. Clone or update the configuration files (docker-compose.prod.yml)
+          if [ ! -d "$DEPLOY_DIR" ]; then
+            echo "Cloning repository to: $DEPLOY_DIR"
+            git clone https://github.com/${{ github.repository }}.git $DEPLOY_DIR
+          fi
+          
+          cd $DEPLOY_DIR
+          echo "Pulling latest configuration files..."
+          # Only pull the config files (docker-compose.prod.yml) as the app image is pre-built
+          git pull
+          
+          # 3. Stop existing services
+          echo "Stopping previous Docker containers..."
+          docker compose -f docker-compose.prod.yml down || true
+          
+          # 4. Pull the latest image from Docker Hub 
+          echo "Pulling latest image: ${{ env.IMAGE_TAG }}..."
+          docker pull ${{ env.IMAGE_TAG }}
+          
+          # 5. Securely inject ALL environment variables and run the deployment
+          # NOTE: The service will restart and pick up the new, pre-pulled image.
+          echo "Starting Docker Compose services with secure variable injection..."
+          
+          FB_EMAIL=${{ secrets.FB_EMAIL }} \
+          FB_PASSWORD=${{ secrets.FB_PASSWORD }} \
+          OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }} \
+          FACEBOOK_PAGES=${{ vars.FACEBOOK_PAGES }} \
+          OPENROUTER_MODEL=${{ vars.OPENROUTER_MODEL }} \
+          docker compose -f docker-compose.prod.yml up -d
+          
+          echo "Deployment successful. The bot is running."
+          
+          # Optional cleanup (TARGETED FOR LOW DISK SPACE)
+          # Removes stopped containers and dangling images only, preserving unused resources 
+          # belonging to other potential future projects.
+          echo "Running targeted cleanup (containers and dangling images)..."
+          docker container prune -f
+          docker image prune -af
+          echo "Cleanup completed."
