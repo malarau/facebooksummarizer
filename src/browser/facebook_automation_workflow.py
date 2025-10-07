@@ -25,7 +25,7 @@ from src.scraper.facebook import FacebookScraper
 from src.scraper.article import ArticleScraper
 from src.analyzer.text_analyzer import TextAnalyzer
 from src.poster.facebook_poster import FacebookPoster
-from database.facebook_database import FacebookDatabase
+from db.facebook_database import FacebookDatabase
 from src.config.config import Config
 from src.utils.logger import app_logger
 

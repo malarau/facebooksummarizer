@@ -4,14 +4,6 @@ Facebook Automation App Runner
 Main application runner with scheduling capabilities for continuous Facebook automation.
 Supports both single-run and scheduled execution modes with configurable intervals.
 """
-import sys
-import os
-
-# Get the path of the directory containing app_runner.py, which is /app inside the container.
-app_root = os.path.dirname(os.path.abspath(__file__))
-# Add the app root to the system path. This ensures top-level packages
-sys.path.append(app_root)
-
 import os
 import sys
 import time
