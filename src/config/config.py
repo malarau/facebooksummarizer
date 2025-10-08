@@ -16,7 +16,7 @@ class Config:
     COOKIE_DIR: Path = Path(__file__).parent.parent.parent / "database" / "cookies"
     DB_PATH: Path = Path(__file__).parent.parent.parent / "database" / "data.db"
     TIMEOUT: int = 10
-    HTTP_TIMEOUT: int = 10
+    HTTP_TIMEOUT: int = 30
     MAX_SCROLLS: int = 5
     POST_LIMIT: int = 10
 

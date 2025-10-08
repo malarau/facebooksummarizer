@@ -73,6 +73,7 @@ class BrowserDriver:
         options.add_argument("--disable-renderer-backgrounding")
         options.add_argument("--blink-settings=imagesEnabled=false")
         options.add_argument("--mute-audio")
+        options.add_argument("--disable-gpu")
                 
         # Performance optimizations
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -91,7 +92,6 @@ class BrowserDriver:
         if self.headless:
             app_logger.info("Running in headless mode; browser GUI will NOT be visible.")
             options.add_argument("--headless=new")  # Use new headless mode
-            options.add_argument("--disable-gpu")
         else:
             app_logger.info("Running in non-headless mode; browser GUI will be visible.")
         

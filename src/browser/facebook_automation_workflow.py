@@ -747,6 +747,7 @@ class FacebookAutomationWorkflow:
             
             # Type comment with human-like delay
             self.browser.type_with_delay(comment_box, comment_text)
+            self._wait_random(0.5, 1.5)
             
             self.logger.info("Comment posted successfully")
             return True
