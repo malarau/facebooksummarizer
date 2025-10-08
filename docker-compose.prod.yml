@@ -32,7 +32,15 @@ services:
     image: selenium/standalone-chrome:latest
     container_name: selenium_chrome
     # Set the shared memory size to prevent browser crashes
-    shm_size: '1g'
+    shm_size: "512m"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 768m
+    environment:
+      - SE_NODE_MAX_SESSIONS=1
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
     # Map ports from the container to the host machine
     ports:
       - "7900:7900"  # noVNC for web browser viewing

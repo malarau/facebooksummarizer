@@ -262,6 +262,11 @@ class FacebookAutomationWorkflow:
                 self.config.max_delay_seconds
             )
             self.logger.info(f"Navigated to {page_url}")
+
+            # Send Escape key to close pop-ups
+            self._wait_random(1, 2)
+            self.scraper.driver.find_element(By.CSS_SELECTOR, "body").send_keys(Keys.ESCAPE)
+            self._wait_random(1, 2)
             
             # Load posts
             posts = self._load_initial_posts()

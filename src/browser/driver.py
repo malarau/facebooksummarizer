@@ -59,7 +59,7 @@ class BrowserDriver:
         
         # Essential options
         # Use a consistent screen size
-        options.add_argument("--window-size=1080,720")
+        options.add_argument("--window-size=600,800")
 
         # Disable extensions and infobars
         options.add_argument("--disable-extensions")
@@ -69,6 +69,10 @@ class BrowserDriver:
         # Required for Docker (even in non-headless mode)
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-software-rasterizer")
+        options.add_argument("--disable-renderer-backgrounding")
+        options.add_argument("--blink-settings=imagesEnabled=false")
+        options.add_argument("--mute-audio")
                 
         # Performance optimizations
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -85,11 +89,11 @@ class BrowserDriver:
         
         # Headless mode if specified
         if self.headless:
-            print("Running in headless mode; browser GUI will NOT be visible.")
+            app_logger.info("Running in headless mode; browser GUI will NOT be visible.")
             options.add_argument("--headless=new")  # Use new headless mode
             options.add_argument("--disable-gpu")
         else:
-            print("Running in non-headless mode; browser GUI will be visible.")
+            app_logger.info("Running in non-headless mode; browser GUI will be visible.")
         
         # Create driver based on environment
         driver = None
