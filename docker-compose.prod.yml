@@ -21,7 +21,7 @@ services:
       - FB_PASSWORD=${FB_PASSWORD}          # Injected secret            
     # Mount the project directory to the container for live code updates
     volumes:
-      - /opt/appdata/facebooksummarizer/database:/app/db
+      - /opt/appdata/facebooksummarizer/database:/app/db/data
     # Ensure the 'selenium' service starts before the 'app' service
     depends_on:
       - selenium
@@ -32,9 +32,8 @@ services:
     image: selenium/standalone-chrome:latest
     container_name: selenium_chrome
     # Set the shared memory size to prevent browser crashes
-    shm_size: '2g'
+    shm_size: '1g'
     # Map ports from the container to the host machine
     ports:
-      - "4444:4444"  # Selenium WebDriver & Grid UI
       - "7900:7900"  # noVNC for web browser viewing
     restart: unless-stopped

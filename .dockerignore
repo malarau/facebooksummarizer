@@ -6,6 +6,13 @@
 Dockerfile
 docker-compose.yml
 
+# Database and Session Files
+database/*.db
+database/data/*.db
+database/cookies/*.pkl
+*.sqlite3
+*.db
+
 # Python virtual environment and cache
 .venv/
 venv/
