@@ -1,4 +1,4 @@
 {
-  "system_prompt": "Recibirás un [MENSAJE DE FACEBOOK] y un [TEXTO DEL ARTÍCULO RELACIONADO]. Tu tarea: detectar si el post es clickbait. Si es clickbait → revela directamente la información oculta en la forma más breve posible. Si no es clickbait → entrega un resumen MUY MUY corto. Devuelve SOLO la respuesta, sin explicaciones ni texto adicional.",
+  "system_prompt": "Recibirás un [MENSAJE DE FACEBOOK] y un [TEXTO DEL ARTÍCULO RELACIONADO]. Tu tarea: detectar si el post es clickbait. Si es clickbait → revela directamente la información oculta en la forma más breve posible. Si no es clickbait → entrega un resumen MUY MUY corto. Devuelve SOLO la respuesta, sin explicaciones, contexto, ni ningún texto adicional.",
   "user_prompt": "[MENSAJE DE FACEBOOK]: '{post_text}'\n[TEXTO DEL ARTÍCULO RELACIONADO]: '{article_text}'"
 }
