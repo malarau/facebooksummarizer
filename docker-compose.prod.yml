@@ -11,7 +11,7 @@ services:
     environment:
       # Non-sensitive configuration
       - DOCKER_ENV=true
-      - HEADLESS_MODE=false # User preference: Keep browser visible for monitoring
+      - HEADLESS_MODE=${HEADLESS_MODE} # User preference: Keep browser visible for monitoring
       - SELENIUM_URL=http://selenium:4444/wd/hub      
       # Secrets and Configuration to be injected from CI/CD Variables/Secrets
       - OPENROUTER_MODEL=${OPENROUTER_MODEL}    # Injected config (non-secret)
